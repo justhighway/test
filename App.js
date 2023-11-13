@@ -3,6 +3,10 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import RootStack from "./screens/RootStack";
 import UserContextProvider from "./context/UserContext";
+import { LogBox } from "react-native";
+
+// 무시할 경고 추가
+LogBox.ignoreLogs(["@firebase/auth:"]);
 
 export default function App() {
   return (

@@ -15,7 +15,7 @@ import { signIn, signUp } from "../lib/auth";
 import { getUser } from "../lib/users";
 import { useUserContext } from "../context/UserContext";
 
-export default function SingInScreen({ navigation, route }) {
+export default function SignInScreen({ navigation, route }) {
   const { isSignUp } = route.params || {};
   const [form, setForm] = useState({
     email: "",
