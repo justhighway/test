@@ -7,6 +7,7 @@ import { LogBox } from "react-native";
 
 // 무시할 경고 추가
 LogBox.ignoreLogs(["@firebase/auth:"]);
+LogBox.ignoreLogs(["Sending"]);
 
 export default function App() {
   return (
