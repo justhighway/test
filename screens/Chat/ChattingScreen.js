@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-export default function CommunityStack() {
+export default function ChattingScreen() {
   return (
     <View>
-      <Text>CommunityStack</Text>
+      <Text>ChattingScreen</Text>
     </View>
   );
 }

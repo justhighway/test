@@ -1,19 +1,21 @@
 // screens/RoosStack.js
+
 import React, { useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import SignInScreen from "./SignInScreen";
-import WelcomeScreen from "./WelcomeScreen";
-import { useUserContext } from "../context/UserContext";
-import MainTab from "./MainTab";
+
 import { getUser } from "../lib/users";
 import { subscribeAuth, getStoredUser } from "./../lib/auth";
-import { useNavigation } from "@react-navigation/native";
+import { useUserContext } from "../context/UserContext";
+
+import MainTab from "./MainTab";
+import SignInScreen from "./SignInScreen";
+import WelcomeScreen from "./WelcomeScreen";
 import UploadItemScreen from "./UploadItemScreen";
 
 const Stack = createNativeStackNavigator();
 
 export default function RootStack() {
-  const navigation = useNavigation();
   const { user, setUser } = useUserContext();
 
   useEffect(() => {
@@ -36,8 +38,7 @@ export default function RootStack() {
         return;
       }
 
-      // 로그인 상태일 때 사용자 정보 업데이트
-      setUser(profile);
+      setUser(profile); // 로그인 상태일 때 사용자 정보 업데이트
     });
 
     return () => {

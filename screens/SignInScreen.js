@@ -7,13 +7,15 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { getUser } from "../lib/users";
+import { signIn, signUp } from "../lib/auth";
+import { useUserContext } from "../context/UserContext";
+
 import SignButton from "../components/SignButton";
 import SignForm from "../components/SignForm";
-import { signIn, signUp } from "../lib/auth";
-import { getUser } from "../lib/users";
-import { useUserContext } from "../context/UserContext";
 
 export default function SignInScreen({ navigation, route }) {
   const { isSignUp } = route.params || {};
@@ -24,9 +26,11 @@ export default function SignInScreen({ navigation, route }) {
   });
   const [loading, setLoading] = useState();
   const { setUser } = useUserContext();
+
   const createChangeTextHandler = (name) => (value) => {
     setForm({ ...form, [name]: value });
   };
+
   const onSubmit = async () => {
     Keyboard.dismiss();
     const { email, password, confirmPassword } = form;

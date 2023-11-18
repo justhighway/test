@@ -1,14 +1,15 @@
 // screens/MainTabs.js
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeStack from "./HomeStack";
-import MyProfileStack from "./MyProfileStack";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import UploadItemButton from "../components/UploadItemButton";
+import { StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import CommunityStack from "./CommunityStack";
-import ChatStack from "./ChatStack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
+import HomeStack from "./Home/HomeStack";
+import CommunityStack from "./Community/CommunityStack";
+import ChatStack from "./Chat/ChatStack";
+import MyProfileStack from "./Profile/MyProfileStack";
+import UploadItemButton from "../components/UploadItemButton";
 
 const Tab = createBottomTabNavigator();
 
@@ -39,7 +40,6 @@ export default function MainTab() {
               } else if (route.name === "MyProfileStack") {
                 iconName = "account";
               }
-
               return (
                 <MaterialCommunityIcons
                   name={iconName}
@@ -55,7 +55,7 @@ export default function MainTab() {
               );
             },
           })}
-          tabBarStyle={{ display: "flex" }} // 여기에 옵션 추가
+          tabBarStyle={{ display: "flex" }}
         >
           <Tab.Screen name="HomeStack" component={HomeStack} />
           <Tab.Screen name="CommunityStack" component={CommunityStack} />

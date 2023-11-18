@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-export default function ChatStack() {
+export default function ChatListScreen() {
   return (
     <View>
-      <Text>ChatStack</Text>
+      <Text>ChatListScreen</Text>
     </View>
   );
 }

@@ -1,15 +1,24 @@
 // components/DeckSwiper.js
 import React, { useEffect, useState, useCallback } from "react";
-import { View, StyleSheet, Text, ActivityIndicator, Image } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+  Image,
+  Dimensions,
+} from "react-native";
 import Swiper from "react-native-deck-swiper";
 import { collection, getDocs } from "firebase/firestore";
 import { FB_DB } from "../FirebaseConfig";
 import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function DeckSwiper() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { width } = Dimensions.get("window");
 
   const fetchData = useCallback(async () => {
     try {
@@ -63,7 +72,11 @@ export default function DeckSwiper() {
   return (
     <View>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator
+          style={styles.activityIndicator}
+          size="large"
+          color="#6200ee"
+        />
       ) : (
         <Swiper
           cards={items}
@@ -82,9 +95,38 @@ export default function DeckSwiper() {
             }
           }}
           cardIndex={0}
-          backgroundColor={"#4FD0E9"}
-          stackSize={5}
-        ></Swiper>
+          stackSize={3}
+          animateOverlayLabelsOpacity={true} // 카드 오버레이 레이블 투명도 애니메이션 활성화
+          overlayLabels={{
+            left: {
+              element: (
+                <MaterialCommunityIcons
+                  name="close-circle"
+                  size={100}
+                  color="green"
+                />
+              ),
+              title: "NOPE",
+              style: {
+                wrapper: styles.overlayLabelWrapperStyle,
+              },
+            },
+            right: {
+              element: (
+                <MaterialCommunityIcons
+                  name="heart-circle"
+                  size={100}
+                  color="#FF0080"
+                />
+              ),
+              title: "LIKE",
+              style: {
+                wrapper: styles.overlayLabelWrapperStyle,
+              },
+            },
+          }}
+          horizontalThreshold={width / 10}
+        />
       )}
     </View>
   );
@@ -137,5 +179,14 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: -1,
+  },
+  overlayLabelWrapperStyle: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  activityIndicator: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
