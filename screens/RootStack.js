@@ -69,6 +69,12 @@ export default function RootStack() {
             component={WelcomeScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="MainTab"
+            component={MainTab}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="uploadItem" component={UploadItemScreen} />
         </>
       )}
     </Stack.Navigator>

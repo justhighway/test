@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { getUser } from "../lib/users";
+import { subscribeAuth } from "../lib/auth";
 import { signIn, signUp } from "../lib/auth";
 import { useUserContext } from "../context/UserContext";
 
@@ -49,8 +50,9 @@ export default function SignInScreen({ navigation, route }) {
       console.log(user);
       const profile = await getUser(user.uid);
       if (!profile) {
-        navigation.navigate("Welcome", { uid: user.uid });
+        navigation.navigate("MainTab", { uid: user.uid });
       } else {
+        // 로그인 성공한 경우에만 setUser 호출
         setUser(profile);
       }
     } catch (e) {
@@ -68,6 +70,7 @@ export default function SignInScreen({ navigation, route }) {
     } finally {
       setLoading(false);
     }
+    await subscribeAuth(() => {});
   };
 
   return (

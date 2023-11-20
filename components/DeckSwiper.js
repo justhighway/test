@@ -22,16 +22,27 @@ export default function DeckSwiper() {
 
   const fetchData = useCallback(async () => {
     try {
+      if (currentIndex === 0) {
+        setLoading(true);
+      }
+
+      const userUploadedItemIDs =
+        user && user.userUploadedItemID ? user.userUploadedItemID : [];
+
       const itemsCollection = collection(FB_DB, "items");
       const itemsSnapshot = await getDocs(itemsCollection);
+
       const itemsData = [];
 
       itemsSnapshot.forEach((doc) => {
         const data = doc.data();
-        itemsData.push({
-          id: doc.id,
-          ...data,
-        });
+        // 사용자가 업로드한 물건만 필터링
+        if (userUploadedItemIDs.includes(doc.id)) {
+          itemsData.push({
+            id: doc.id,
+            ...data,
+          });
+        }
       });
 
       setItems((prevItems) => [...prevItems, ...itemsData]);
@@ -40,7 +51,7 @@ export default function DeckSwiper() {
       console.error("Error fetching data:", error);
       setLoading(false);
     }
-  }, [currentIndex]);
+  }, [currentIndex, user]);
 
   useEffect(() => {
     fetchData();
