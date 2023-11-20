@@ -17,7 +17,7 @@ export default function MainTab() {
   const navigation = useNavigation();
 
   const handleUploadItemPress = () => {
-    navigation.navigate("물건 업로드");
+    navigation.navigate("UploadItem", { refreshHome: true });
   };
 
   return (

@@ -1,4 +1,4 @@
-// screens/SignInScreen.js
+// screens/SignUpScreen.js
 
 import React, { useState, useRef } from "react";
 import {
@@ -9,13 +9,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   StyleSheet,
-  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useUserContext } from "../context/UserContext";
-import { signIn } from "../lib/auth";
+import { signUp } from "../lib/auth";
+import { createUser } from "../lib/users";
 
-const SignInScreen = ({ navigation }) => {
+const SignUpScreen = ({ navigation }) => {
   const { setUser } = useUserContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,15 +23,27 @@ const SignInScreen = ({ navigation }) => {
 
   const passwordRef = useRef();
 
-  const handleSignIn = async () => {
+  const handleSignUp = async () => {
     setLoading(true);
     try {
-      const userCredential = await signIn({ email, password });
+      const userCredential = await signUp({ email, password });
       setUser(userCredential.user);
-      console.log("로그인 성공:", userCredential.user.uid);
+
+      const { uid } = userCredential.user; // 현재 로그인한 사용자의 'uid'를 가져옵니다.
+
+      // createUser 함수 호출 시 'uid' 값을 전달합니다.
+      await createUser({
+        userEmail: email,
+        userNickname: "",
+        userProfilePic: "",
+        userCategory: [],
+        uid: uid, // 'uid'를 전달합니다.
+      });
+
       navigation.navigate("GetUserCategory");
+      console.log("유저 정보 생성됨:", userCredential.user.uid);
     } catch (error) {
-      console.error("Sign In Error:", error.message);
+      console.error("Sign Up Error:", error.message);
       // Handle error (e.g., show error message to user)
     } finally {
       setLoading(false);
@@ -41,8 +53,8 @@ const SignInScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <SafeAreaView style={styles.fullscreen}>
-        <View style={{ marginBottom: 40 }}>
-          <Text>Sign In</Text>
+        <View>
+          <Text>Sign Up</Text>
         </View>
         <TextInput
           style={styles.input}
@@ -64,21 +76,21 @@ const SignInScreen = ({ navigation }) => {
           value={password}
           onChangeText={setPassword}
           returnKeyType="done" // 엔터 키를 누를 때 '완료'로 설정
-          onSubmitEditing={handleSignIn} // 엔터 키를 누를 때 handleSignIn 함수 호출
+          onSubmitEditing={handleSignUp}
         />
         <TouchableOpacity
           style={styles.button}
-          onPress={handleSignIn}
+          onPress={handleSignUp}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
-            <Text style={styles.buttonText}>Sign In</Text>
+            <Text style={styles.buttonText}>Sign Up</Text>
           )}
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-          <Text>Create an account</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+          <Text>Already have an account? Sign In</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -118,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInScreen;
+export default SignUpScreen;

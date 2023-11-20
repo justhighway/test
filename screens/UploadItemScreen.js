@@ -1,7 +1,8 @@
-// UploadItemScreen.js
+// screens/UploadItemScreen.js
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
+  Text,
   ScrollView,
   TextInput,
   Button,
@@ -9,25 +10,29 @@ import {
   Alert,
   StyleSheet,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { uploadItem } from "../lib/itemService";
-import { useNavigation } from "@react-navigation/native";
-import { ref } from "firebase/storage";
+import { useUserContext } from "../context/UserContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function UploadItemScreen() {
+  const { user } = useUserContext();
   const [itemName, setItemName] = useState("");
   const [itemCondition, setItemCondition] = useState("");
   const [itemPrice, setItemPrice] = useState("");
-  const [itemKeywords, setItemKeywords] = useState("");
+  const [itemCategory, setItemCategory] = useState("");
   const [itemDescription, setItemDescription] = useState("");
   const [itemPics, setItemPics] = useState([]);
 
   const itemConditionRef = useRef();
   const itemPriceRef = useRef();
-  const itemKeywordsRef = useRef();
+  const itemCategoryRef = useRef();
   const itemDescriptionRef = useRef();
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     // 권한 요청
@@ -54,116 +59,116 @@ export default function UploadItemScreen() {
     if (!result.canceled) {
       // result.assets 배열에서 uri만 추출하여 setItemPics로 설정
       setItemPics(result.assets.map((asset) => asset.uri));
-      console.log(itemPics);
     }
   };
-
-  useEffect(() => {
-    console.log(itemPics);
-  }, [itemPics]);
 
   const handleUpload = async () => {
     if (
       !itemName ||
       !itemCondition ||
       !itemPrice ||
-      !itemKeywords ||
+      !itemCategory ||
       itemPics.length === 0
     ) {
       Alert.alert("입력 필요", "모든 필드를 입력하세요");
       return;
     }
 
-    const success = await uploadItem({
+    const { success, itemId, error } = await uploadItem({
       itemName,
       itemCondition,
       itemPrice,
-      itemKeywords,
+      itemCategory,
       itemDescription,
       itemPics,
+      userId: user.uid,
     });
 
     if (success) {
       Alert.alert("성공", "상품이 성공적으로 업로드되었습니다");
       // 업로드 후 필요한 작업 수행
     } else {
-      Alert.alert(
-        "오류",
-        "상품 업로드 중 오류가 발생했습니다. 다시 시도해주세요."
-      );
+      Alert.alert("오류", `상품 업로드 중 오류가 발생했습니다. ${error}`);
     }
   };
 
   return (
     <KeyboardAvoidingView
-      style={styles.KeyboardAvoidingView}
+      style={styles.keyboardAvoidingView}
       behavior={Platform.select({ ios: "padding" })}
     >
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {itemPics.map((uri, index) => (
-          <Image key={index} source={{ uri }} style={styles.images} />
-        ))}
-      </ScrollView>
+      <SafeAreaView style={styles.fullscreen}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {itemPics.map((uri, index) => (
+            <Image key={index} source={{ uri }} style={styles.images} />
+          ))}
+        </ScrollView>
 
-      <Button title="이미지 선택" onPress={pickImage} />
+        <Button title="이미지 선택" onPress={pickImage} />
 
-      <TextInput
-        placeholder="상품명"
-        value={itemName}
-        onChangeText={setItemName}
-        style={styles.input}
-        onSubmitEditing={() => itemConditionRef.current.focus()}
-      />
-      <TextInput
-        placeholder="상품 상태"
-        value={itemCondition}
-        onChangeText={setItemCondition}
-        style={styles.input}
-        ref={itemConditionRef}
-        onSubmitEditing={() => {
-          itemPriceRef.current.focus();
-        }}
-      />
-      <TextInput
-        placeholder="상품 가격"
-        value={itemPrice}
-        onChangeText={setItemPrice}
-        style={styles.input}
-        ref={itemPriceRef}
-        onSubmitEditing={() => {
-          itemKeywordsRef.current.focus();
-        }}
-      />
-      <TextInput
-        placeholder="상품 키워드"
-        value={itemKeywords}
-        onChangeText={setItemKeywords}
-        style={styles.input}
-        ref={itemKeywordsRef}
-        onSubmitEditing={() => {
-          itemDescriptionRef.current.focus();
-        }}
-      />
-      <TextInput
-        placeholder="상품 설명"
-        value={itemDescription}
-        onChangeText={setItemDescription}
-        style={styles.descriptInput}
-        ref={itemDescriptionRef}
-      />
-
-      <Button
-        title="업로드"
-        style={{ backgroundColor: "purple" }}
-        onPress={handleUpload}
-      />
+        <TextInput
+          placeholder="상품명"
+          value={itemName}
+          onChangeText={setItemName}
+          style={styles.input}
+          onSubmitEditing={() => itemConditionRef.current.focus()}
+        />
+        <TextInput
+          placeholder="상품 상태"
+          value={itemCondition}
+          onChangeText={setItemCondition}
+          style={styles.input}
+          ref={itemConditionRef}
+          onSubmitEditing={() => itemPriceRef.current.focus()}
+        />
+        <TextInput
+          placeholder="상품 가격"
+          value={itemPrice}
+          onChangeText={setItemPrice}
+          style={styles.input}
+          ref={itemPriceRef}
+          onSubmitEditing={() => itemCategoryRef.current.focus()}
+        />
+        <TextInput
+          placeholder="상품 카테고리"
+          value={itemCategory}
+          onChangeText={setItemCategory}
+          style={styles.input}
+          ref={itemCategoryRef}
+          onSubmitEditing={() => itemDescriptionRef.current.focus()}
+        />
+        <TextInput
+          placeholder="상품 설명"
+          value={itemDescription}
+          onChangeText={setItemDescription}
+          style={styles.descriptInput}
+          ref={itemDescriptionRef}
+        />
+        <View style={styles.buttonLayout}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.pop()}
+          >
+            <Text style={{ color: "white" }}>뒤로가기</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleUpload}>
+            <Text style={{ color: "white" }}>업로드</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  KeyboardAvoidingView: {},
-  scrollContent: {},
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  fullscreen: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   input: {
     borderColor: "#bdbdbd",
     borderWidth: 1,
@@ -190,5 +195,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginRight: 15,
     borderRadius: 10,
+  },
+  buttonLayout: {
+    flexDirection: "row",
+  },
+  button: {
+    width: "45%",
+    height: 60,
+    backgroundColor: "purple",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 10,
+    marginBottom: 10,
   },
 });

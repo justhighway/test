@@ -9,12 +9,11 @@ import {
   Dimensions,
 } from "react-native";
 import Swiper from "react-native-deck-swiper";
-import { collection, getDocs } from "firebase/firestore";
-import { FB_DB } from "../FirebaseConfig";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { fetchMatchingItems } from "../lib/items";
 
-export default function DeckSwiper() {
+export default function DeckSwiper({ userUploadedItemIDs }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -26,59 +25,46 @@ export default function DeckSwiper() {
         setLoading(true);
       }
 
-      const userUploadedItemIDs =
-        user && user.userUploadedItemID ? user.userUploadedItemID : [];
+      const selectedItemId = items[currentIndex];
+      const matchingItems = await fetchMatchingItems(user.uid, selectedItemId);
 
-      const itemsCollection = collection(FB_DB, "items");
-      const itemsSnapshot = await getDocs(itemsCollection);
-
-      const itemsData = [];
-
-      itemsSnapshot.forEach((doc) => {
-        const data = doc.data();
-        // 사용자가 업로드한 물건만 필터링
-        if (userUploadedItemIDs.includes(doc.id)) {
-          itemsData.push({
-            id: doc.id,
-            ...data,
-          });
-        }
-      });
-
-      setItems((prevItems) => [...prevItems, ...itemsData]);
+      setItems((prevItems) => [...prevItems, ...matchingItems]);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
     }
-  }, [currentIndex, user]);
+  }, [currentIndex, user, items]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const renderCard = useCallback((card) => {
-    const { itemName, itemPrice, itemCondition, itemPics } = card;
+  const renderCard = useCallback(
+    (card) => {
+      const { itemName, itemPrice, itemCondition, itemPics } = card;
 
-    return (
-      <View style={styles.card}>
-        <LinearGradient
-          colors={["transparent", "rgba(0, 0, 0, 0.8)"]}
-          style={styles.gradientBox}
-        />
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>{itemName}</Text>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.infoText}>{itemPrice} · </Text>
-            <Text style={styles.infoText}>{itemCondition}</Text>
+      return (
+        <View style={styles.card}>
+          <LinearGradient
+            colors={["transparent", "rgba(0, 0, 0, 0.8)"]}
+            style={styles.gradientBox}
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.text}>{itemName}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.infoText}>{itemPrice} · </Text>
+              <Text style={styles.infoText}>{itemCondition}</Text>
+            </View>
           </View>
+          {itemPics && itemPics.length > 0 && (
+            <Image source={{ uri: itemPics[0] }} style={styles.itemPic} />
+          )}
         </View>
-        {itemPics && itemPics.length > 0 && (
-          <Image source={{ uri: itemPics[0] }} style={styles.itemPic} />
-        )}
-      </View>
-    );
-  }, []);
+      );
+    },
+    [items]
+  );
 
   return (
     <View>

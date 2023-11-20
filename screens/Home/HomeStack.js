@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import HomeScreen from "./HomeScreen";
 import ChattingScreen from "../Chat/ChattingScreen";
+import UploadItemScreen from "../UploadItemScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,11 @@ export default function HomeStack() {
       <Stack.Screen
         name="Chatting"
         component={ChattingScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UploadItem"
+        component={UploadItemScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

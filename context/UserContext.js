@@ -1,4 +1,3 @@
-import { StyleSheet, Text, View } from "react-native";
 import React, { useContext, createContext, useState } from "react";
 
 const UserContext = createContext(null);
@@ -9,8 +8,8 @@ export default function UserContextProvider({ children }) {
     <UserContext.Provider
       children={children}
       value={{
-        user,
-        setUser,
+        user: user,
+        setUser: setUser,
       }}
     />
   );
