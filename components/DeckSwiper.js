@@ -12,23 +12,46 @@ import Swiper from "react-native-deck-swiper";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { fetchMatchingItems } from "../lib/items";
+import { useUserContext } from "../context/UserContext";
 
 export default function DeckSwiper({ userUploadedItemIDs }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = Dimensions.get("window");
+  const { user } = useUserContext();
+  const cards = ["this", "is", "newver", "that"];
 
   const fetchData = useCallback(async () => {
     try {
+      if (!user) {
+        console.log("User not available yet");
+        return;
+      }
+
       if (currentIndex === 0) {
         setLoading(true);
       }
 
-      const selectedItemId = items[currentIndex];
-      const matchingItems = await fetchMatchingItems(user.uid, selectedItemId);
+      // Log currentIndex and items to see their values
+      console.log("currentIndex:", currentIndex);
+      console.log("items:", items);
 
-      setItems((prevItems) => [...prevItems, ...matchingItems]);
+      const selectedItemId = items[currentIndex];
+
+      // Check if selectedItemId is not undefined before fetching matching items
+      if (selectedItemId !== undefined) {
+        const matchingItems = await fetchMatchingItems(
+          user.uid,
+          selectedItemId
+        );
+
+        // Log matchingItems to see the structure
+        console.log("matchingItems:", matchingItems);
+
+        setItems((prevItems) => [...prevItems, ...matchingItems]);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -37,11 +60,23 @@ export default function DeckSwiper({ userUploadedItemIDs }) {
   }, [currentIndex, user, items]);
 
   useEffect(() => {
+    console.log("Updated items:", items);
     fetchData();
-  }, [fetchData]);
+  }, [fetchData, user, items]);
 
   const renderCard = useCallback(
     (card) => {
+      console.log("Card data:", card);
+      if (!card) {
+        return (
+          <View style={styles.card}>
+            <Text style={styles.infoText}>
+              조건에 해당하는 데이터가 없습니다.
+            </Text>
+          </View>
+        );
+      }
+
       const { itemName, itemPrice, itemCondition, itemPics } = card;
 
       return (

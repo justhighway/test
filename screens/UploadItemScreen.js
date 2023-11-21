@@ -86,7 +86,7 @@ export default function UploadItemScreen() {
 
     if (success) {
       Alert.alert("성공", "상품이 성공적으로 업로드되었습니다");
-      // 업로드 후 필요한 작업 수행
+      navigation.pop();
     } else {
       Alert.alert("오류", `상품 업로드 중 오류가 발생했습니다. ${error}`);
     }
