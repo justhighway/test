@@ -14,7 +14,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-import { uploadItem } from "../lib/itemService";
+import * as ImageManipulator from "expo-image-manipulator";
+import { uploadItem } from "../lib/items";
 import { useUserContext } from "../context/UserContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -35,7 +36,7 @@ export default function UploadItemScreen() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    // 권한 요청
+    // 사진 권한 요청
     (async () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -57,22 +58,37 @@ export default function UploadItemScreen() {
     });
 
     if (!result.canceled) {
-      // result.assets 배열에서 uri만 추출하여 setItemPics로 설정
-      setItemPics(result.assets.map((asset) => asset.uri));
+      const compressedImages = await compressImages(result.assets);
+      setItemPics(compressedImages.map((image) => image.uri));
     }
   };
 
+  const compressImages = async (assets) => {
+    const compressedImages = await Promise.all(
+      assets.map(async (asset) => {
+        const manipResult = await ImageManipulator.manipulateAsync(
+          asset.uri,
+          [{ resize: { width: 600 } }],
+          { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+        );
+        return manipResult;
+      })
+    );
+
+    return compressedImages;
+  };
+
   const handleUpload = async () => {
-    if (
-      !itemName ||
-      !itemCondition ||
-      !itemPrice ||
-      !itemCategory ||
-      itemPics.length === 0
-    ) {
-      Alert.alert("입력 필요", "모든 필드를 입력하세요");
-      return;
-    }
+    // if (
+    //   !itemName ||
+    //   !itemCondition ||
+    //   !itemPrice ||
+    //   !itemCategory ||
+    //   itemPics.length === 0
+    // ) {
+    //   Alert.alert("입력 필요", "모든 필드를 입력하세요");
+    //   return;
+    // }
 
     const { success, itemId, error } = await uploadItem({
       itemName,
@@ -86,7 +102,7 @@ export default function UploadItemScreen() {
 
     if (success) {
       Alert.alert("성공", "상품이 성공적으로 업로드되었습니다");
-      navigation.pop();
+      navigation.navigate("Home");
     } else {
       Alert.alert("오류", `상품 업로드 중 오류가 발생했습니다. ${error}`);
     }

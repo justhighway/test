@@ -13,67 +13,22 @@ import { useUserContext } from "../context/UserContext";
 import { updateUserCategory } from "../lib/users";
 
 const categories = [
-  "전자제품",
-  "의류",
-  "도서",
-  "가구",
-  "스포츠용품",
-  "기타",
-  "음식",
-  "음료",
-  "뷰티",
-  "건강",
-  "가전제품",
-  "애완동물용품",
-  "가방",
-  "신발",
-  "액세서리",
-  "의류소품",
-  "시계",
-  "자동차 용품",
-  "전자/테크",
-  "취미",
-  "스포츠",
-  "인테리어",
-  "욕실용품",
-  "리빙",
-  "헤어",
-  "스킨케어",
-  "메이크업",
-  "네일아트",
-  "향수",
-  "미용도구",
-  "건강기능식품",
-  "의료용품",
-  "건강 측정기기",
-  "의약품",
-  "냉장식품",
-  "건조식품",
-  "간편조리식품",
-  "음료수",
-  "커피 및 차",
-  "간식",
-  "카메라",
-  "휴대폰 액세서리",
-  "음향기기",
-  "게임",
-  "소프트웨어",
-  "유아의류",
-  "유아신발",
-  "완구",
-  "유아도서",
-  "유아용품",
-  "캠핑용품",
-  "등산용품",
-  "문구",
-  "예술",
-  "음악",
-  "속옷",
-  "모자 및 장갑",
-  "스카프",
-  "시즌",
-  "휴일",
-  "파티",
+  "여성패션",
+  "남성패션",
+  "화장품/미용",
+  "가구/인테리어",
+  "식품",
+  "출산/유아동",
+  "반려동물용품",
+  "생활/주방용품",
+  "가전",
+  "디지털",
+  "컴퓨터",
+  "스포츠/레저",
+  "건강/의료용품",
+  "자동차/공구",
+  "취미/문구/악기",
+  "여행",
 ];
 
 const GetUserCategoryScreen = ({ navigation }) => {
@@ -91,13 +46,8 @@ const GetUserCategoryScreen = ({ navigation }) => {
   };
 
   const handleContinue = async () => {
-    // Firestore에 사용자가 선택한 카테고리 업데이트
     await updateUserCategory(user.uid, selectedCategories);
-
-    // 로컬 사용자 컨텍스트 업데이트
     setUser((prevUser) => ({ ...prevUser, userCategory: selectedCategories }));
-
-    // 다음 화면(MainTab)으로 이동
     navigation.navigate("MainTab");
   };
 

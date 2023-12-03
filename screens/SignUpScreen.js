@@ -28,19 +28,14 @@ const SignUpScreen = ({ navigation }) => {
     try {
       const userCredential = await signUp({ email, password });
       setUser(userCredential.user);
+      const { uid } = userCredential.user;
 
-      const { uid } = userCredential.user; // 현재 로그인한 사용자의 'uid'를 가져옵니다.
-
-      // createUser 함수 호출 시 'uid' 값을 전달합니다.
       await createUser({
         userEmail: email,
-        userNickname: "",
-        userProfilePic: "",
-        userCategory: [],
-        uid: uid, // 'uid'를 전달합니다.
+        uid: uid,
       });
 
-      navigation.navigate("GetUserCategory");
+      navigation.replace("GetUserCategory");
       console.log("유저 정보 생성됨:", userCredential.user.uid);
     } catch (error) {
       console.error("Sign Up Error:", error.message);

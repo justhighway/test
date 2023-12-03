@@ -29,10 +29,9 @@ const SignInScreen = ({ navigation }) => {
       const userCredential = await signIn({ email, password });
       setUser(userCredential.user);
       console.log("로그인 성공:", userCredential.user.uid);
-      navigation.navigate("GetUserCategory");
+      navigation.replace("MainTab");
     } catch (error) {
-      console.error("Sign In Error:", error.message);
-      // Handle error (e.g., show error message to user)
+      console.error("로그인 에러:", error.message);
     } finally {
       setLoading(false);
     }

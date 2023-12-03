@@ -1,11 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { StyleSheet, LogBox } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
+
 import RootStack from "./screens/RootStack";
 import UserContextProvider from "./context/UserContext";
-import { LogBox } from "react-native";
 
-// 무시할 경고 추가
 LogBox.ignoreLogs(["@firebase/auth:"]);
 LogBox.ignoreLogs(["Sending"]);
 
