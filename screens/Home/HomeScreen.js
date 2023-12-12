@@ -1,18 +1,29 @@
 // screen/HomeScreen.js
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  SafeAreaView,
+  ActivityIndicator,
+} from "react-native";
 import { useUserContext } from "../../context/UserContext";
 import DeckSwiper from "../../components/DeckSwiper";
 import { fetchUserUploadedItem } from "../../lib/items";
 import { useIsFocused } from "@react-navigation/native";
 import SelectItemButton from "../../components/SelectItemButton";
+import { FB_DB } from "../../FirebaseConfig";
+import { doc, collection, getDoc } from "firebase/firestore";
+import { calculateSimilarity } from "../../lib/calculateSimilarity";
 
 const HomeScreen = () => {
   const { user } = useUserContext();
   const isFocused = useIsFocused();
   const [hasUploadedItem, setHasUploadedItem] = useState(false);
   const [userUploadedItems, setUserUploadedItems] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null); // 추가
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [similarities, setSimilarities] = useState();
 
   const checkUploadedItem = async () => {
     const userItems = await fetchUserUploadedItem(user.uid);
@@ -31,14 +42,26 @@ const HomeScreen = () => {
       checkUploadedItem();
       console.log("HomeScreen 재포커스");
     }
-  }, [user, isFocused]);
+    console.log(similarities);
+  }, [user, isFocused, similarities]);
 
-  const handleSelectItem = (selectedItem) => {
-    setSelectedItem(selectedItem); // 선택된 아이템 상태 업데이트
+  const handleSelectItem = async (selectedItem) => {
+    setSelectedItem(selectedItem);
+
+    // 'items' 컬렉션의 데이터를 불러와서 유사도 계산
+    const itemsCollection = collection(FB_DB, "items");
+    const userCategoryRef = await getDoc(doc(FB_DB, "users", user.uid));
+    const userCategory = userCategoryRef.data().userCategory;
+    const calculatedSimilarities = await calculateSimilarity(
+      selectedItem,
+      itemsCollection,
+      userCategory
+    );
+    setSimilarities(calculatedSimilarities);
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       {hasUploadedItem && !selectedItem ? (
         <>
           <SelectItemButton
@@ -51,11 +74,15 @@ const HomeScreen = () => {
         </>
       ) : selectedItem ? (
         <>
-          <SelectItemButton
+          {/* <SelectItemButton
             userUploadedItems={userUploadedItems}
             onSelectItem={handleSelectItem}
-          />
-          <DeckSwiper />
+          /> */}
+          {similarities ? (
+            <DeckSwiper similarItems={similarities} />
+          ) : (
+            <ActivityIndicator />
+          )}
         </>
       ) : (
         <View style={styles.container}>
